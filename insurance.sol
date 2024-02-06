@@ -46,6 +46,16 @@ contract AccidentInfo {
         string[] policies;
         uint maxAmount;
     }
+    struct InsuranceCompany {
+        address wallet;
+        string name;
+        string gstno;
+    }
+    struct User {
+        address wallet;
+        string name;
+        uint citizenID;
+    }
 
 
     uint public accidentId;
@@ -62,12 +72,14 @@ contract AccidentInfo {
     mapping(uint => Person) citizenIdToPerson;
     mapping(address => bool) public hospitals;
     mapping(address => bool) public governmentAuthorities;
-    mapping (address => bool) public insuranceCompanies;
+    mapping (string => InsuranceCompany) public insuranceCompanies;
     mapping(uint => MedicalRecord[]) personMedicalRecords;
     mapping(uint =>MedicalRecord) idToMedicalRecord;
     mapping(uint => bool) insuranceValidity;
     mapping(uint => MedicalInsurance) idToMedicalInsurance;
     mapping(uint => address) citizenAddress;
+    mapping(uint => User) citizenIdToUser;
+
 
     // MedicalInsurance[] public medicalInsurances;
 
@@ -90,6 +102,27 @@ contract AccidentInfo {
     function hasValue(uint citizenId) public view returns (bool) {
         // Check if the mapping has a value for the given key
         return bytes(citizenIdToPerson[citizenId].name).length > 0;
+    }
+
+    function registerInsuranceCompany(address _wallet,string memory _name,string memory _gstno)public{
+        InsuranceCompany memory n = InsuranceCompany({
+            wallet: _wallet,
+            name: _name,
+            gstno: _gstno
+        });
+        insuranceCompanies[_name] = n;
+
+    }
+
+    function addUser(address _wallet,string memory _name,uint id)public{
+        User memory n = User({
+            wallet: _wallet,
+            name: _name,
+            citizenID: id
+        });
+
+        citizenIdToUser[id] = n;
+
     }
 
 
@@ -170,10 +203,10 @@ contract AccidentInfo {
         require(hospitals[msg.sender], "Not authorized");
         _;
     }
-    modifier onlyInsuranceCompany() {
-        require(insuranceCompanies[msg.sender], "Not authorized");
-        _;
-    }
+    // modifier onlyInsuranceCompany() {
+    //     require(insuranceCompanies[msg.sender], "Not authorized");
+    //     _;
+    // }
 
     // Function to transfer ownership to a new address
     function transferOwnership(address newOwner) public onlyOwner {
